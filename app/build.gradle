@@ -11,10 +11,10 @@ android {
         minSdk 21
         targetSdk 35
         versionCode 320
-        versionName project.findProperty("VERSION_NAME") ?: "3.2.0"
-        
+        versionName "3.2.1"  // Hardcoded to match F-Droid's expectation
+
         // Set arch-specific version code
-        project.ext.versionNameString = project.findProperty("VERSION_NAME") ?: "3.2.0"
+        project.ext.versionNameString = "3.2.1"  // Updated to match
     }
 
     signingConfigs {
@@ -45,12 +45,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    
+
     lint {
         disable "MissingTranslation" // Translation is crowd-sourced, so this lint warning is useless
         abortOnError false
     }
-    
+
     // F-Droid compatibility - ensure reproducible builds
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
