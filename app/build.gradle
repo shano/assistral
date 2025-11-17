@@ -10,11 +10,12 @@ android {
         applicationId "org.shano.assistral"
         minSdk 21
         targetSdk 35
-        versionCode 320
-        versionName "3.2.1"  // Hardcoded to match F-Droid's expectation
+        versionCode (project.findProperty("VERSION_CODE") ?: "320").toInteger()
+        def resolvedVersionName = project.findProperty("VERSION_NAME") ?: "3.2.1"
+        versionName resolvedVersionName
 
-        // Set arch-specific version code
-        project.ext.versionNameString = "3.2.1"  // Updated to match
+        // Save for filename generation (required by F-Droid build process)
+        project.ext.versionNameString = resolvedVersionName
     }
 
     signingConfigs {
