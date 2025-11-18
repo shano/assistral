@@ -46,6 +46,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     lint {
         disable "MissingTranslation" // Translation is crowd-sourced, so this lint warning is useless
         abortOnError false
