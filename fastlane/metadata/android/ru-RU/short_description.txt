@@ -1,0 +1,1 @@
+WebView-обёртка для Mistral Le Chat

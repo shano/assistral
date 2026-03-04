@@ -1,3 +1,5 @@
+**English** | [Русский](RELEASES_RU.md)
+
 # Release Process
 
 ## Creating a New Release
