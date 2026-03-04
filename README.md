@@ -22,7 +22,7 @@
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Get it on F-Droid"
 height="75">](https://f-droid.org/packages/org.shano.assistral/)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png"
+[<img src="https://brouken.com/img/get-it-on-obtainium.png"
 alt="Get it on Obtanium"
 height="75">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
 
