@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name" translatable="false">gptAssist</string>
+    <string name="app_name" translatable="false">Assistral</string>
     <string name="error_microsoft_google">Вход через аккаунты Google, Apple или Microsoft не поддерживается</string>
     <string name="error_copy">Пожалуйста, выделите и скопируйте текст вручную</string>
     <!-- StarDialog -->
     <string name="dialog_OK_button">ОК</string>
     <string name="dialog_NO_button">Нет</string>
     <string name="dialog_Later_button">Возможно позже</string>
-    <string name="dialog_StarOnGitHub">Вам нравится это приложение? Поставьте звезду на GitHub или поддержите разработчика, купив ему кофе через PayPal.</string>
+    <string name="dialog_StarOnGitHub">Вам нравится это приложение? Пожалуйста, поставьте звезду на GitHub или поддержите разработчика, купив ему кофе через PayPal.</string>
     <string name="download">Начата загрузка:</string>
     <string name="all_urls">Все ссылки разрешены</string>
     <string name="urls_restricted">Ссылки ограничены</string>
