@@ -21,7 +21,7 @@
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Get it on F-Droid"
-height="80"
+height="86"
 style="vertical-align: middle;">](https://f-droid.org/packages/org.shano.assistral/)
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png"
 alt="Get it on Obtanium"
