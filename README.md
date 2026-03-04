@@ -21,10 +21,12 @@
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Get it on F-Droid"
-height="80">](https://f-droid.org/packages/org.shano.assistral/)
+height="80"
+style="vertical-align: middle;">](https://f-droid.org/packages/org.shano.assistral/)
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png"
 alt="Get it on Obtanium"
-height="80">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
+height="72"
+style="vertical-align: middle;">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
 
 Or download the latest APK from the [Releases](https://github.com/shano/assistral/releases) page.
 
