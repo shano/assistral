@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Assistral</string>
+    <string name="app_name" translatable="false">Ассистрал</string>
     <string name="error_microsoft_google">Вход через аккаунты Google, Apple или Microsoft не поддерживается</string>
     <string name="error_copy">Пожалуйста, выделите и скопируйте текст вручную</string>
     <!-- StarDialog -->
