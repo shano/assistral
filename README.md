@@ -22,6 +22,9 @@
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Get it on F-Droid"
 height="80">](https://f-droid.org/packages/org.shano.assistral/)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png"
+alt="Get it on Obtanium"
+height="80">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
 
 Or download the latest APK from the [Releases](https://github.com/shano/assistral/releases) page.
 
@@ -48,4 +51,3 @@ If you find a bug, please open an issue in the Github repository, assuming one d
 - Make your description as precise as possible.
 
 If you know the solution to a bug please report it in the corresponding issue and if possible modify the code and create a pull request.
-
