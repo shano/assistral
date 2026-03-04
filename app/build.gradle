@@ -10,11 +10,11 @@ android {
         applicationId "org.shano.assistral"
         minSdk 21
         targetSdk 35
-        versionCode 320
-        versionName "3.2.1"
+        versionCode 321
+        versionName "3.2.2"
 
         // Save for filename generation (required by F-Droid build process)
-        project.ext.versionNameString = "3.2.1"
+        project.ext.versionNameString = "3.2.2"
     }
 
     signingConfigs {

@@ -7,6 +7,7 @@
     <string name="dialog_NO_button">No</string>
     <string name="dialog_Later_button">Maybe later</string>
     <string name="dialog_StarOnGitHub">Do you like this app? Please give a star on GitHub or buy the developer a coffee via PayPal.</string>
+    <string name="dialog_google_policy_notice">Google has announced that, starting in 2026/2027, all apps on certified Android devices will require developers to submit personal identity details directly to Google.\n\nSince the developers of this app do not agree to this requirement, this app may no longer work on certified Android devices after that time.</string>
     <string name="download">Download started:</string>
     <string name="all_urls">All URLs allowed</string>
     <string name="urls_restricted">URLs restricted</string>

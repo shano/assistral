@@ -154,7 +154,7 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                     if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
                     }
@@ -208,16 +208,22 @@ public class MainActivity extends Activity {
                     return new WebResourceResponse("text/javascript", "UTF-8", null); //Deny URLs that aren't HTTPS
                 }
                 boolean allowed = false;
+                String host = request.getUrl().getHost();
+                if (host == null) {
+                    return new WebResourceResponse("text/javascript", "UTF-8", null);
+                }
                 for (String url : allowedDomains) {
-                    if (request.getUrl().getHost().endsWith(url)) {
+                    if (host.endsWith(url)) {
                         allowed = true;
                     }
                 }
                 if (!allowed) {
-                    Log.d(TAG, "[shouldInterceptRequest][NOT ON ALLOWLIST] Blocked access to " + request.getUrl().getHost());
-                    if (request.getUrl().getHost().equals("login.microsoftonline.com") || request.getUrl().getHost().equals("accounts.google.com") || request.getUrl().getHost().equals("appleid.apple.com")){
-                        Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
-                        resetChat();
+                    Log.d(TAG, "[shouldInterceptRequest][NOT ON ALLOWLIST] Blocked access to " + host);
+                    if (host.equals("login.microsoftonline.com") || host.equals("accounts.google.com") || host.equals("appleid.apple.com")){
+                        view.post(() -> {
+                            Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
+                            resetChat();
+                        });
                     }
                     if (request.getUrl().toString().contains("gravatar.com/avatar/")) {
                         AssetManager assetManager = getAssets();
@@ -245,14 +251,18 @@ public class MainActivity extends Activity {
                     return true; //Deny URLs that aren't HTTPS
                 }
                 boolean allowed = false;
+                String host = request.getUrl().getHost();
+                if (host == null) {
+                    return true;
+                }
                 for (String url : allowedDomains) {
-                    if (request.getUrl().getHost().endsWith(url)) {
+                    if (host.endsWith(url)) {
                         allowed = true;
                     }
                 }
                 if (!allowed) {
-                    Log.d(TAG, "[shouldOverrideUrlLoading][NOT ON ALLOWLIST] Blocked access to " + request.getUrl().getHost());
-                    if (request.getUrl().getHost().equals("login.microsoftonline.com") || request.getUrl().getHost().equals("accounts.google.com") || request.getUrl().getHost().equals("appleid.apple.com")){
+                    Log.d(TAG, "[shouldOverrideUrlLoading][NOT ON ALLOWLIST] Blocked access to " + host);
+                    if (host.equals("login.microsoftonline.com") || host.equals("accounts.google.com") || host.equals("appleid.apple.com")){
                         Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
                         resetChat();
                     }
@@ -286,9 +296,15 @@ public class MainActivity extends Activity {
         chatWebSettings.setJavaScriptEnabled(true);
         chatWebSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         chatWebSettings.setDomStorageEnabled(true);
+        chatWebSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            chatWebSettings.setSafeBrowsingEnabled(true);
+        }
         //Disable some WebView features
         chatWebSettings.setAllowContentAccess(false);
         chatWebSettings.setAllowFileAccess(false);
+        chatWebSettings.setAllowFileAccessFromFileURLs(false);
+        chatWebSettings.setAllowUniversalAccessFromFileURLs(false);
         chatWebSettings.setBuiltInZoomControls(false);
         chatWebSettings.setDatabaseEnabled(false);
         chatWebSettings.setDisplayZoomControls(false);
@@ -297,6 +313,7 @@ public class MainActivity extends Activity {
 
         //Load Mistral Le Chat
         chatWebView.loadUrl(urlToLoad);
+        GooglePolicyNotice.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE);
         if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/shano/assistral");
     }
 
@@ -340,6 +357,7 @@ public class MainActivity extends Activity {
 
     private static void initURLs() {
         //Allowed Domains
+        allowedDomains.clear();
         allowedDomains.add("cdn.auth0.com");
         allowedDomains.add("chat.mistral.ai");
         allowedDomains.add("mistral.ai");

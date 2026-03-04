@@ -1,0 +1,4 @@
+- Added notice about upcoming Google developer identity requirements (README and in-app dialog)
+- Hardened WebView security settings (mixed content disabled, Safe Browsing enabled)
+- Hardened app defaults (cleartext traffic disabled, backups disabled)
+- Improved URL filtering robustness and Android 13+ file picker permission handling
