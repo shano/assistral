@@ -7,9 +7,11 @@
     <string name="dialog_NO_button">Нет</string>
     <string name="dialog_Later_button">Возможно позже</string>
     <string name="dialog_StarOnGitHub">Вам нравится это приложение? Пожалуйста, поставьте звезду на GitHub или поддержите разработчика, купив ему кофе через PayPal.</string>
+    <string name="dialog_google_policy_notice">Google объявил, что начиная с 2026/2027 года все приложения на сертифицированных устройствах Android потребуют от разработчиков предоставления персональных данных непосредственно Google.
+
+Поскольку разработчики этого приложения не согласны с этим требованием, приложение может перестать работать на сертифицированных устройствах Android после этого времени.</string>
     <string name="download">Начата загрузка:</string>
     <string name="all_urls">Все ссылки разрешены</string>
     <string name="urls_restricted">Ссылки ограничены</string>
     <string name="url_copied">Ссылка скопирована</string>
-    <string name="dialog_google_policy_notice">Уведомление о политике Google</string>
 </resources>
