@@ -1,57 +1,77 @@
-[English](RELEASES.md) | **Русский**
-
 # Процесс выпуска
 
-## Создание новой версии
+## Текущая стабильная версия
 
-1. **Обновление номеров версий**
-   - Обновите `versionCode` и `versionName` в `app/build.gradle`
-   - Создайте новый файл changelog в `metadata/en-US/changelogs/{versionCode}.txt`
+- **Тег:** `v3.2.2`
+- **Название версии:** `3.2.2`
+- **Код версии:** `321`
 
-2. **Создание Git-тега**
+## Чек-лист выпуска
+
+1. Обновите значения версии в `app/build.gradle`:
+   - `versionName`
+   - `versionCode`
+   - `project.ext.versionNameString`
+2. Добавьте файл с изменениями: `metadata/ru-RU/changelogs/<versionCode>.txt`
+3. Зафиксируйте и отправьте изменения в `master`.
+4. Создайте и отправьте тег:
    ```bash
-   git tag -a v3.0 -m "Релиз версии 3.0"
-   git push origin v3.0
+   git tag -a vX.Y.Z -m "Выпуск версии X.Y.Z"
+   git push origin vX.Y.Z
    ```
+5. Убедитесь, что GitHub Actions `Build Release APK` выполнен успешно.
+6. Убедитесь, что в GitHub Release присутствует файл `assistral-release-X.Y.Z.apk`.
 
-3. **GitHub Actions**
-   - Workflow релиз автоматически запустится при пуше тега
-   - Соберёт подписанный APK и создаст релиз на GitHub
+## Требуемые GitHub Secrets для подписанных релизов
 
-4. **Отправка в F-Droid**
-   - F-Droid автоматически обнаружит релиз через metadata
-   - Приложение соберётся на инфраструктуре F-Droid
+Настроены в параметрах репозитория: **Secrets and variables -> Actions**:
 
-## Инструкции для мейнтейнеров
+- `SIGNING_KEYSTORE_BASE64`
+- `SIGNING_STORE_PASSWORD`
+- `SIGNING_KEY_ALIAS`
+- `SIGNING_KEY_PASSWORD`
 
-### GitHub Secrets (для подписанных релизов)
-Настройте секреты в репозитории GitHub:
-- `SIGNING_KEY`: Keystore в Base64
-- `ALIAS`: Имя ключа
-- `KEY_STORE_PASSWORD`: Пароль хранилища  
-- `KEY_PASSWORD`: Пароль ключа
+Они соответствуют свойствам Gradle, используемым в `app/build.gradle`:
 
-### Генерация Keystore
+- `MYAPP_RELEASE_STORE_FILE`
+- `MYAPP_RELEASE_STORE_PASSWORD`
+- `MYAPP_RELEASE_KEY_ALIAS`
+- `MYAPP_RELEASE_KEY_PASSWORD`
+
+## Настройка хранилища ключей
+
+Сгенерируйте хранилище ключей:
+
 ```bash
-keytool -genkey -v -keystore assistral-release-key.keystore -alias assistral -keyalg RSA -keysize 2048 -validity 10000
+keytool -genkeypair -v \
+  -keystore assistral-release-key.keystore \
+  -alias assistral \
+  -keyalg RSA -keysize 4096 -validity 10000
 ```
 
-### Конвертация в Base64 для GitHub Secrets
+Преобразуйте хранилище ключей в однострочный base64 (для `SIGNING_KEYSTORE_BASE64`):
+
 ```bash
 base64 assistral-release-key.keystore | tr -d '\n'
 ```
 
-## Текущий релиз: v3.0
+## Локальная подписанная сборка (опционально)
 
-- **Version Code**: 300
-- **Version Name**: 3.0
-- **Дата релиза**: 2025-01-XX
-- **Основные изменения**: Полная миграция с gptAssist/ChatGPT на Ассистрал/Mistral Le Chat
+```bash
+./gradlew :app:assembleRelease \
+  -PMYAPP_RELEASE_STORE_FILE=/abs/path/to/assistral-release-key.keystore \
+  -PMYAPP_RELEASE_STORE_PASSWORD="$MYAPP_RELEASE_STORE_PASSWORD" \
+  -PMYAPP_RELEASE_KEY_ALIAS="$MYAPP_RELEASE_KEY_ALIAS" \
+  -PMYAPP_RELEASE_KEY_PASSWORD="$MYAPP_RELEASE_KEY_PASSWORD"
+```
 
-## История релизов
+## Примечания по обновлению F-Droid
 
-### v3.0 (300) - 2025-01-XX
-- Полная переработка с gptAssist на Ассистрал
-- Миграция с ChatGPT на Mistral Le Chat
-- Обновление брендинга, package names и metadata
-- Первый релиз для F-Droid
+При обновлении метаданных `fdroiddata`:
+
+1. Добавьте **новый** блок в `Builds:` для каждого релиза (не заменяйте старые блоки).
+2. Установите `commit` на точный коммит/тег, использованный для GitHub release APK.
+3. Обновите:
+   - `CurrentVersion`
+   - `CurrentVersionCode`
+4. Оставьте `AllowedAPKSigningKeys` без изменений, если ключ подписи не изменился.
