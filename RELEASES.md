@@ -1,57 +1,77 @@
-**English** | [Русский](RELEASES_RU.md)
-
 # Release Process
 
-## Creating a New Release
+## Current Stable Release
 
-1. **Update Version Numbers**
-   - Update `versionCode` and `versionName` in `app/build.gradle`
-   - Create a new changelog file in `metadata/en-US/changelogs/{versionCode}.txt`
+- **Tag:** `v3.2.2`
+- **Version Name:** `3.2.2`
+- **Version Code:** `321`
 
-2. **Create Git Tag**
+## Release Checklist
+
+1. Update app version values in `app/build.gradle`:
+   - `versionName`
+   - `versionCode`
+   - `project.ext.versionNameString`
+2. Add changelog file: `metadata/en-US/changelogs/<versionCode>.txt`
+3. Commit and push to `master`.
+4. Create and push tag:
    ```bash
-   git tag -a v3.0 -m "Release version 3.0"
-   git push origin v3.0
+   git tag -a vX.Y.Z -m "Release version X.Y.Z"
+   git push origin vX.Y.Z
    ```
+5. Confirm GitHub Actions `Build Release APK` workflow succeeded.
+6. Confirm GitHub Release contains asset `assistral-release-X.Y.Z.apk`.
 
-3. **GitHub Actions**
-   - The release workflow will automatically trigger on tag push
-   - It will build a signed release APK and create a GitHub release
+## GitHub Secrets Required For Signed Releases
 
-4. **F-Droid Submission**
-   - F-Droid will automatically detect the new release via the metadata files
-   - The app will be built on F-Droid's infrastructure using the metadata configuration
+Configured in repository settings under **Secrets and variables -> Actions**:
 
-## Setup Instructions for Maintainers
+- `SIGNING_KEYSTORE_BASE64`
+- `SIGNING_STORE_PASSWORD`
+- `SIGNING_KEY_ALIAS`
+- `SIGNING_KEY_PASSWORD`
 
-### GitHub Secrets (for signed releases)
-Set up these secrets in your GitHub repository:
-- `SIGNING_KEY`: Base64 encoded keystore file
-- `ALIAS`: Key alias
-- `KEY_STORE_PASSWORD`: Keystore password  
-- `KEY_PASSWORD`: Key password
+These map to Gradle properties used by `app/build.gradle`:
 
-### Generating a Keystore
+- `MYAPP_RELEASE_STORE_FILE`
+- `MYAPP_RELEASE_STORE_PASSWORD`
+- `MYAPP_RELEASE_KEY_ALIAS`
+- `MYAPP_RELEASE_KEY_PASSWORD`
+
+## Keystore Setup
+
+Generate keystore:
+
 ```bash
-keytool -genkey -v -keystore assistral-release-key.keystore -alias assistral -keyalg RSA -keysize 2048 -validity 10000
+keytool -genkeypair -v \
+  -keystore assistral-release-key.keystore \
+  -alias assistral \
+  -keyalg RSA -keysize 4096 -validity 10000
 ```
 
-### Converting to Base64 for GitHub Secrets
+Convert keystore to one-line base64 (for `SIGNING_KEYSTORE_BASE64`):
+
 ```bash
 base64 assistral-release-key.keystore | tr -d '\n'
 ```
 
-## Current Release: v3.0
+## Local Signed Build (Optional)
 
-- **Version Code**: 300
-- **Version Name**: 3.0
-- **Release Date**: 2025-01-XX
-- **Key Changes**: Complete migration from gptAssist/ChatGPT to Assistral/Mistral Le Chat
+```bash
+./gradlew :app:assembleRelease \
+  -PMYAPP_RELEASE_STORE_FILE=/abs/path/to/assistral-release-key.keystore \
+  -PMYAPP_RELEASE_STORE_PASSWORD="$MYAPP_RELEASE_STORE_PASSWORD" \
+  -PMYAPP_RELEASE_KEY_ALIAS="$MYAPP_RELEASE_KEY_ALIAS" \
+  -PMYAPP_RELEASE_KEY_PASSWORD="$MYAPP_RELEASE_KEY_PASSWORD"
+```
 
-## Release History
+## F-Droid Update Notes
 
-### v3.0 (300) - 2025-01-XX
-- Complete rewrite from gptAssist to Assistral
-- Migrated from ChatGPT to Mistral Le Chat
-- Updated all branding, package names, and metadata
-- First release targeting F-Droid distribution
+When updating `fdroiddata` metadata:
+
+1. Add a **new** block in `Builds:` for each release (do not replace old blocks).
+2. Set `commit` to the exact commit/tag used for the GitHub release APK.
+3. Update:
+   - `CurrentVersion`
+   - `CurrentVersionCode`
+4. Keep `AllowedAPKSigningKeys` unchanged unless signing key changes.
