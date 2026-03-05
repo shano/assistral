@@ -1,4 +1,4 @@
-<p><strong>Ассистрал</strong> — простая WebView-обёртка для Mistral Le Chat. Блокирует все ненужные для работы ссылки.</p>
+<p><strong>Assistral</strong> — простая WebView-обёртка для Mistral Le Chat. Блокирует все ненужные для работы ссылки.</p>
 <p><strong>Важно:</strong> Вход через аккаунты Apple, Microsoft или Google не поддерживается. Для первоначальной регистрации используйте веб-браузер.</p>
 <p><strong>Управление:</strong></p>
 <ul>
