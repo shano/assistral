@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Ассистрал</string>
+    <string name="app_name" translatable="false">Assistral</string>
     <string name="error_microsoft_google">Вход через аккаунты Google, Apple или Microsoft не поддерживается</string>
     <string name="error_copy">Пожалуйста, выделите и скопируйте текст вручную</string>
     <!-- StarDialog -->
@@ -11,4 +11,5 @@
     <string name="all_urls">Все ссылки разрешены</string>
     <string name="urls_restricted">Ссылки ограничены</string>
     <string name="url_copied">Ссылка скопирована</string>
+    <string name="dialog_google_policy_notice">Уведомление о политике Google</string>
 </resources>
