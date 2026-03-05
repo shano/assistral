@@ -1,3 +1,5 @@
+[English](RELEASES.md) | [Русский](RELEASES_RU.md)
+
 # Release Process
 
 ## Current Stable Release
@@ -75,4 +77,3 @@ When updating `fdroiddata` metadata:
    - `CurrentVersion`
    - `CurrentVersionCode`
 4. Keep `AllowedAPKSigningKeys` unchanged unless signing key changes.
-
