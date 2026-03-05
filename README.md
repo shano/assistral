@@ -3,9 +3,11 @@
   
   # Assistral
 **English** | [Русский](README_RU.md)
+  
+  A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a focused chat experience.
 </div>
 
-A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a focused chat experience.
+> Google has announced that, starting in 2026/2027, all apps on certified Android devices will require developers to submit personal identity details directly to Google. Since the developers of this app do not agree to this requirement, this app may no longer work on certified Android devices after that time.
 
 ## Features
 
@@ -20,7 +22,10 @@ A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a 
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Get it on F-Droid"
-height="80">](https://f-droid.org/packages/org.shano.assistral/)
+height="75">](https://f-droid.org/packages/org.shano.assistral/)
+[<img src="https://brouken.com/img/get-it-on-obtainium.png"
+alt="Get it on Obtanium"
+height="75">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
 
 Or download the latest APK from the [Releases](https://github.com/shano/assistral/releases) page.
 
@@ -37,6 +42,7 @@ Swipe up a bit to hide the button for a cleaner view.
 This app is licensed under the GPLv3.
 
 The app uses:
+- Code from gptAssist (https://github.com/woheller69/gptAssist) which is licensed under the GPLv3
 - Parts from GMaps WV (https://gitlab.com/divested-mobile/maps) which is licensed under the GPLv3
 
 ## Contributing
