@@ -1,11 +1,13 @@
 <div align="center">
   <img src="app/src/main/ic_launcher-playstore.png" alt="Assistral Logo" width="128" height="128">
 
-  # Ассистрал
+  # Assistral
 [English](README.md) | **Русский**
+  
+  Простая WebView-обёртка для Mistral Le Chat, блокирующая ненужные ссылки для сосредоточенного общения.
 </div>
 
-Простая WebView-обёртка для Mistral Le Chat, блокирующая ненужные ссылки для сосредоточенного общения.
+> Google объявил, что начиная с 2026/2027 года все приложения на сертифицированных устройствах Android потребуют от разработчиков предоставления персональных данных непосредственно Google. Поскольку разработчики этого приложения не согласны с этим требованием, приложение может перестать работать на сертифицированных устройствах Android после этого времени.
 
 ## Возможности
 
@@ -20,7 +22,10 @@
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
 alt="Скачать в F-Droid"
-height="80">](https://f-droid.org/packages/org.shano.assistral/)
+height="75">](https://f-droid.org/packages/org.shano.assistral/)
+[<img src="https://brouken.com/img/get-it-on-obtainium.png"
+alt="Скачать в Obtainium"
+height="75">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/shano/assistral)
 
 Или скачайте последнюю версию APK со страницы [Релизов](https://github.com/shano/assistral/releases).
 
@@ -37,6 +42,7 @@ height="80">](https://f-droid.org/packages/org.shano.assistral/)
 Приложение распространяется под лицензией **GPLv3**.
 
 В приложении используются компоненты:
+- Код из **gptAssist** ([ссылка](https://github.com/woheller69/gptAssist)), распространяемый под **GPLv3**
 - Части **GMaps WV** ([ссылка](https://gitlab.com/divested-mobile/maps)), распространяемые под **GPLv3**
 
 ## Участие в разработке
