@@ -4,8 +4,8 @@
   # Assistral
 **English** | [Русский](README_RU.md)
 </div>
-  A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a focused chat experience.
-</div>
+
+A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a focused chat experience.
 
 ## Features
 
@@ -47,5 +47,3 @@ If you find a bug, please open an issue in the Github repository, assuming one d
 - Make your description as precise as possible.
 
 If you know the solution to a bug please report it in the corresponding issue and if possible modify the code and create a pull request.
-
-
