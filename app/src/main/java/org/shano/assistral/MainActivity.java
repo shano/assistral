@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
 
     private ValueCallback<Uri[]> mUploadMessage;
     private final static int FILE_CHOOSER_REQUEST_CODE = 1;
+    private android.webkit.PermissionRequest pendingPermissionRequest;
 
     @Override
     protected void onPause() {
@@ -180,9 +181,8 @@ public class MainActivity extends Activity {
                         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                             request.grant(request.getResources());
                         } else {
-                            // Request the permission from the user
+                            pendingPermissionRequest = request;
                             requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 123);
-                            // A more robust solution would involve storing 'request' and calling request.grant() in onRequestPermissionsResult.
                         }
                     } else {
                         request.deny();
@@ -364,6 +364,7 @@ public class MainActivity extends Activity {
         allowedDomains.add("api.mistral.ai");
         allowedDomains.add("console.mistral.ai");
         allowedDomains.add("mistralcdn.net");
+        allowedDomains.add("blob.core.windows.net"); // Mistral audio/file uploads (Azure Blob Storage)
 
     }
 
@@ -462,8 +463,15 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 123) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context, "Microphone permission granted.", Toast.LENGTH_SHORT).show();
+                if (pendingPermissionRequest != null) {
+                    pendingPermissionRequest.grant(pendingPermissionRequest.getResources());
+                    pendingPermissionRequest = null;
+                }
             } else {
+                if (pendingPermissionRequest != null) {
+                    pendingPermissionRequest.deny();
+                    pendingPermissionRequest = null;
+                }
                 Toast.makeText(context, "Microphone permission denied.", Toast.LENGTH_SHORT).show();
             }
         }
