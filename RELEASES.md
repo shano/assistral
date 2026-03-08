@@ -1,12 +1,10 @@
-[English](RELEASES.md) | [Русский](RELEASES_RU.md)
-
 # Release Process
 
 ## Current Stable Release
 
-- **Tag:** `v3.2.2`
-- **Version Name:** `3.2.2`
-- **Version Code:** `321`
+- **Tag:** `v3.2.4`
+- **Version Name:** `3.2.4`
+- **Version Code:** `324`
 
 ## Release Checklist
 

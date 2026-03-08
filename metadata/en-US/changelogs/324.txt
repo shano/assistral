@@ -1,0 +1,1 @@
+Fixed voice input submission — recorded audio was being blocked before reaching Mistral. Added Russian localisation.
