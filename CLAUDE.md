@@ -54,6 +54,29 @@ Standard Gradle Android project. Min/target SDK in `app/build.gradle`.
 
 Signing properties passed as Gradle properties (see `gradle.properties` and CI workflows).
 
+## Release Process
+
+Releases are triggered by pushing a `v*` tag. The `release.yml` workflow builds a signed APK and publishes a GitHub release automatically.
+
+**Before tagging, always bump the version in `app/build.gradle`** — three values must stay in sync:
+```
+versionCode 324                          # increment by 1 each release
+versionName "3.2.4"                      # human-readable version
+project.ext.versionNameString = "3.2.4" # controls the APK filename
+```
+
+The APK filename is generated from `versionNameString`, not the git tag. If you tag without bumping these, the release artifact will show the old version number.
+
+```bash
+# Full release checklist:
+# 1. Bump versionCode, versionName, versionNameString in app/build.gradle
+# 2. Commit and push
+git add app/build.gradle && git commit -m "chore: bump version to X.Y.Z"
+git push
+# 3. Tag and push to trigger the release workflow
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
+
 ## Distribution
 
 - F-Droid: `metadata/org.shano.assistral.yml` + `metadata/en-US/`
