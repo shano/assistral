@@ -2,8 +2,6 @@
   <img src="app/src/main/ic_launcher-playstore.png" alt="Assistral Logo" width="128" height="128">
   
   # Assistral
-[English](README.md) | [Русский](README_RU.md)
-  
   A simple WebView wrapper for Mistral Le Chat that blocks unnecessary URLs for a focused chat experience.
 </div>
 
