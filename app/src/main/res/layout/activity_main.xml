@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <WebView
+    <org.shano.assistral.AutocorrectWebView
         android:id="@+id/chatWebView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
