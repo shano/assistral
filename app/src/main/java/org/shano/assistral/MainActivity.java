@@ -240,6 +240,30 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Blur the focused input after message submission so the soft keyboard dismisses.
+                // Watches for the chat input to be cleared (empty after non-empty = message sent).
+                view.evaluateJavascript(
+                    "(function(){" +
+                    "var last='';" +
+                    "document.addEventListener('input',function(e){" +
+                    "  last=e.target.value||e.target.textContent||'';" +
+                    "},true);" +
+                    "document.addEventListener('click',function(e){" +
+                    "  if(!e.target.closest('button'))return;" +
+                    "  setTimeout(function(){" +
+                    "    var a=document.activeElement;" +
+                    "    if(!a||a===document.body)return;" +
+                    "    var c=a.value||a.textContent||'';" +
+                    "    if(c.trim()===''&&last.trim()!=='')a.blur();" +
+                    "  },400);" +
+                    "},true);" +
+                    "})();",
+                    null
+                );
+            }
+
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!restricted) return false;
 
@@ -265,8 +289,16 @@ public class MainActivity extends Activity {
                     if (host.equals("login.microsoftonline.com") || host.equals("accounts.google.com") || host.equals("appleid.apple.com")){
                         Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
                         resetChat();
+                        return true;
                     }
-                    return true; //Deny URLs not on ALLOWLIST
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, request.getUrl());
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        startActivity(browserIntent);
+                    } catch (android.content.ActivityNotFoundException e) {
+                        Log.e(TAG, "No browser to open: " + request.getUrl());
+                    }
+                    return true;
                 }
                 return false;
             }
