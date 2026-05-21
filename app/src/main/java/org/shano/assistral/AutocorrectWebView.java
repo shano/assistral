@@ -33,7 +33,9 @@ public class AutocorrectWebView extends WebView {
             outAttrs.inputType = InputType.TYPE_CLASS_TEXT
                     | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
                     | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-                    | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+                    | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                    | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
         }
         return ic;
     }
