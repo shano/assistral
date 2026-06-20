@@ -1,5 +1,6 @@
 ANDROID_HOME  ?= $(HOME)/Android/Sdk
 JAVA_HOME     ?= /var/lib/flatpak/app/com.google.AndroidStudio/current/active/files/extra/jbr
+ADB           := $(ANDROID_HOME)/platform-tools/adb
 AVDMANAGER    := $(ANDROID_HOME)/cmdline-tools/latest/bin/avdmanager
 EMULATOR      := $(ANDROID_HOME)/emulator/emulator
 AVD           ?= assistral-dev
@@ -50,35 +51,35 @@ create-avd:
 
 ## Wait for a running emulator/device to be ready (start it via Android Studio Device Manager first)
 emulator:
-	@if adb devices | grep -q emulator; then \
+	@if $(ADB) devices | grep -q emulator; then \
 		echo "Emulator already online."; \
 	else \
 		echo "No emulator detected. Start one via Android Studio Device Manager, then re-run."; \
 		echo "Waiting for device to come online (Ctrl+C to abort)..."; \
-		adb wait-for-device; \
+		$(ADB) wait-for-device; \
 		echo "Waiting for boot to complete..."; \
-		until adb shell getprop sys.boot_completed 2>/dev/null | grep -q 1; do sleep 2; done; \
+		until $(ADB) shell getprop sys.boot_completed 2>/dev/null | grep -q 1; do sleep 2; done; \
 		sleep 3; \
 		echo "Emulator ready."; \
 	fi
 
 ## Build and install the debug APK
 install: check-env
-	@if ! adb devices | grep -q emulator; then \
+	@if ! $(ADB) devices | grep -q emulator; then \
 		echo "ERROR: No emulator running. Run 'make emulator' or start one via Android Studio AVD Manager first."; \
 		exit 1; \
 	fi
 	@echo "Restarting adb server to ensure SDK adb sees the emulator..."
-	@adb kill-server
-	@adb start-server
-	@adb wait-for-device
-	@until adb shell getprop sys.boot_completed 2>/dev/null | grep -q 1; do sleep 2; done
-	@adb devices
+	@$(ADB) kill-server
+	@$(ADB) start-server
+	@$(ADB) wait-for-device
+	@until $(ADB) shell getprop sys.boot_completed 2>/dev/null | grep -q 1; do sleep 2; done
+	@$(ADB) devices
 	./gradlew installDebug
 
 ## Launch the app on the connected device/emulator
 launch:
-	adb shell am start -n $(APP_PACKAGE)/$(APP_ACTIVITY)
+	$(ADB) shell am start -n $(APP_PACKAGE)/$(APP_ACTIVITY)
 
 ## Full cycle: start emulator, build, install, launch
 run: emulator install launch
@@ -91,25 +92,37 @@ debug: check-env
 release: check-env
 	./gradlew assembleRelease
 
+## Run E2E tests (emulator must be running with app open on Mistral chat, logged in)
+test: check-env
+	@PID=$$($(ADB) shell pidof $(APP_PACKAGE) 2>/dev/null | tr -d '\r' | cut -d' ' -f1); \
+	if [ -z "$$PID" ]; then echo "ERROR: App not running. Run 'make run' first."; exit 1; fi; \
+	echo "App PID: $$PID"; \
+	$(ADB) forward tcp:9222 localabstract:webview_devtools_remote_$$PID; \
+	cd test && python -m pytest test_enter_newline.py -v -s
+
 ## Clean build outputs
 clean:
 	./gradlew clean
 
 ## Live logcat for the app (Ctrl+C to stop)
 logcat:
-	adb logcat -s assistral:D WebView:D chromium:D
+	$(ADB) logcat -s assistral:D WebView:D chromium:D
 
 ## Live logcat showing only blocked/allowed URL decisions
 logcat-urls:
-	adb logcat -s assistral:D | grep --line-buffered -iE "ALLOWLIST|Blocked access"
+	$(ADB) logcat -s assistral:D | grep --line-buffered -iE "ALLOWLIST|Blocked access"
 
 ## Live logcat for audio and permission events
 logcat-audio:
-	adb logcat | grep --line-buffered -iE "assistral|audio|microphone|PermissionRequest|RECORD_AUDIO|AAudio|TinyALSA"
+	$(ADB) logcat | grep --line-buffered -iE "assistral|audio|microphone|PermissionRequest|RECORD_AUDIO|AAudio|TinyALSA"
+
+## Live logcat for JS injection debugging (filters CSP spam)
+logcat-js:
+	$(ADB) logcat | grep --line-buffered "\[assistral\]" | grep -v "CSP\|Content Security\|Refused"
 
 ## Print resolved env for troubleshooting
 check-env:
 	@echo "JAVA_HOME:    $(JAVA_HOME)"
 	@echo "ANDROID_HOME: $(ANDROID_HOME)"
-	@java -version 2>&1 | head -1
-	@adb devices
+	@$(JAVA_HOME)/bin/java -version 2>&1 | head -1
+	@$(ADB) devices

@@ -77,6 +77,17 @@ git push
 git tag vX.Y.Z && git push origin vX.Y.Z
 ```
 
+## F-Droid Metadata
+
+The fdroiddata YAML (`metadata/org.shano.assistral.yml`) has strict formatting enforced by `rewritemeta`. The `Binaries:` field must use a trailing space after the colon, with the URL indented on the next line:
+
+```yaml
+Binaries:
+  https://github.com/shano/assistral/releases/download/v%v/assistral-release-%v.apk
+```
+
+Inline (`Binaries: https://...`) and no-trailing-space (`Binaries:`) both fail the CI lint.
+
 ## Distribution
 
 - F-Droid: `metadata/org.shano.assistral.yml` + `metadata/en-US/`
