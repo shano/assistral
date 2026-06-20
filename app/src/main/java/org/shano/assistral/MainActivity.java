@@ -53,8 +53,12 @@ import android.webkit.ValueCallback;
 import android.net.Uri;
 
 import androidx.webkit.URLUtilCompat;
+import android.content.ContentValues;
+import android.provider.MediaStore;
+import android.webkit.JavascriptInterface;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -74,6 +78,30 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> mUploadMessage;
     private final static int FILE_CHOOSER_REQUEST_CODE = 1;
     private android.webkit.PermissionRequest pendingPermissionRequest;
+
+    private class BlobDownloadHandler {
+        @JavascriptInterface
+        public void onBlobReceived(String dataUrl, String mimeType, String filename) {
+            String base64 = dataUrl.contains(",") ? dataUrl.substring(dataUrl.indexOf(',') + 1) : dataUrl;
+            byte[] bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Downloads.DISPLAY_NAME, filename);
+            values.put(MediaStore.Downloads.MIME_TYPE, mimeType.isEmpty() ? "application/octet-stream" : mimeType);
+            values.put(MediaStore.Downloads.IS_PENDING, 1);
+            Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+            Uri itemUri = getContentResolver().insert(collection, values);
+            if (itemUri == null) return;
+            try (OutputStream os = getContentResolver().openOutputStream(itemUri)) {
+                if (os != null) os.write(bytes);
+            } catch (IOException e) {
+                Log.e(TAG, "blob save failed", e);
+            }
+            values.clear();
+            values.put(MediaStore.Downloads.IS_PENDING, 0);
+            getContentResolver().update(itemUri, values, null, null);
+            runOnUiThread(() -> Toast.makeText(context, getString(R.string.download) + "\n" + filename, Toast.LENGTH_SHORT).show());
+        }
+    }
 
     @Override
     protected void onPause() {
@@ -131,6 +159,10 @@ public class MainActivity extends Activity {
 
         //Create the WebView
         chatWebView = findViewById(R.id.chatWebView);
+        if (BuildConfig.DEBUG) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
+        chatWebView.addJavascriptInterface(new BlobDownloadHandler(), "Android");
         registerForContextMenu(chatWebView);
         restrictedButton = findViewById(R.id.restricted);
 
@@ -146,7 +178,10 @@ public class MainActivity extends Activity {
         chatWebView.setWebChromeClient(new WebChromeClient(){
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                if (consoleMessage.message().contains("NotAllowedError: Write permission denied.")) {  //this error occurs when user copies to clipboard
+                if (consoleMessage.message().startsWith("[assistral]")) {
+                    Log.d(TAG, "[JS] " + consoleMessage.message());
+                }
+                if (consoleMessage.message().contains("NotAllowedError: Write permission denied.")) {
                     Toast.makeText(context, R.string.error_copy,Toast.LENGTH_LONG).show();
                     return true;
                 }
@@ -240,12 +275,46 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                // Blur the focused input after message submission so the soft keyboard dismisses.
-                // Watches for the chat input to be cleared (empty after non-empty = message sent).
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                // Register Enter interceptors before Mistral's React scripts run.
                 view.evaluateJavascript(
                     "(function(){" +
+                    "if(window.__assistralInjected)return;" +
+                    "window.__assistralInjected=true;" +
+                    "window.addEventListener('beforeinput',function(e){" +
+                    "  if(e.inputType!=='insertParagraph')return;" +
+                    "  var ce=e.target&&(e.target.isContentEditable?e.target:(e.target.closest&&e.target.closest('[contenteditable]')));" +
+                    "  if(!ce)return;" +
+                    "  e.stopImmediatePropagation();" +
+                    "  e.preventDefault();" +
+                    "  var el=ce,found=null;" +
+                    "  while(el){" +
+                    "    var rk=Object.keys(el).find(function(k){return k.startsWith('__reactProps');});" +
+                    "    if(rk){var p=el[rk];if(p.onKeyDown){found={el:el,props:p};break;}}" +
+                    "    el=el.parentElement;" +
+                    "  }" +
+                    "  if(found){" +
+                    "    console.log('[assistral] found onKeyDown on '+found.el.tagName+' propsKeys='+JSON.stringify(Object.keys(found.props)));" +
+                    "    found.props.onKeyDown({key:'Enter',shiftKey:true,ctrlKey:false,metaKey:false,altKey:false,preventDefault:function(){},stopPropagation:function(){},nativeEvent:{key:'Enter',shiftKey:true,isTrusted:true}});" +
+                    "    setTimeout(function(){console.log('[assistral] 100ms innerHTML='+JSON.stringify(ce.innerHTML.slice(0,300)));},100);" +
+                    "  } else {" +
+                    "    console.log('[assistral] no onKeyDown found in ancestors');" +
+                    "  }" +
+                    "},true);" +
+                    "})();",
+                    null
+                );
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Blur focused input after send button clears it, to dismiss keyboard.
+                view.evaluateJavascript(
+                    "(function(){" +
+                    "if(window.__assistralDismissInjected)return;" +
+                    "window.__assistralDismissInjected=true;" +
                     "var last='';" +
                     "document.addEventListener('input',function(e){" +
                     "  last=e.target.value||e.target.textContent||'';" +
@@ -305,16 +374,27 @@ public class MainActivity extends Activity {
         });
 
         chatWebView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            Uri source = Uri.parse(url);
             Log.d(TAG,"DownloadManager: " + url);
+            String filename = URLUtilCompat.getFilenameFromContentDisposition(contentDisposition);
+            if (filename == null) filename = URLUtilCompat.guessFileName(url, contentDisposition, mimetype);
+            if (url.startsWith("blob:")) {
+                chatWebView.evaluateJavascript(
+                    "(function(){" +
+                    "fetch(" + escapeJs(url) + ")" +
+                    ".then(function(r){return r.blob();})" +
+                    ".then(function(b){var fr=new FileReader();" +
+                    "fr.onloadend=function(){Android.onBlobReceived(fr.result,b.type," + escapeJs(filename) + ");};" +
+                    "fr.readAsDataURL(b);});" +
+                    "})();", null);
+                return;
+            }
+            Uri source = Uri.parse(url);
             DownloadManager.Request request = new DownloadManager.Request(source);
             request.addRequestHeader("Cookie", CookieManager.getInstance().getCookie(url));
             request.addRequestHeader("Accept", "text/html, application/xhtml+xml, *" + "/" + "*");
             request.addRequestHeader("Accept-Language", "en-US,en;q=0.7,he;q=0.3");
             request.addRequestHeader("Referer", url);
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //Notify client once download is completed!
-            String filename = URLUtilCompat.getFilenameFromContentDisposition(contentDisposition);
-            if (filename == null) filename = URLUtilCompat.guessFileName(url, contentDisposition, mimetype);  // only if getFilenameFromContentDisposition does not work and returns null
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
             Toast.makeText(this, getString(R.string.download) + "\n" + filename, Toast.LENGTH_SHORT).show();
             DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
@@ -343,6 +423,7 @@ public class MainActivity extends Activity {
         chatWebSettings.setSaveFormData(false);
         chatWebSettings.setGeolocationEnabled(false);
 
+        Log.d(TAG, "[onCreate] build loaded, dispatchKeyEvent override active");
         //Load Mistral Le Chat
         chatWebView.loadUrl(urlToLoad);
         GooglePolicyNotice.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE);
@@ -352,6 +433,22 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        Log.d(TAG, "[dispatchKeyEvent] keyCode=" + event.getKeyCode() + " action=" + event.getAction() + " shift=" + event.isShiftPressed());
+        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && !event.isShiftPressed()) {
+            Log.d(TAG, "[dispatchKeyEvent] converting Enter -> Shift+Enter at Activity level");
+            KeyEvent shiftEnter = new KeyEvent(
+                event.getDownTime(), event.getEventTime(),
+                event.getAction(), event.getKeyCode(),
+                event.getRepeatCount(),
+                event.getMetaState() | KeyEvent.META_SHIFT_ON | KeyEvent.META_SHIFT_LEFT_ON
+            );
+            return super.dispatchKeyEvent(shiftEnter);
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -515,6 +612,10 @@ public class MainActivity extends Activity {
                 Toast.makeText(context, "Storage permission denied.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private String escapeJs(String s) {
+        return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 
 }
