@@ -494,6 +494,7 @@ public class MainActivity extends Activity {
         allowedDomains.add("console.mistral.ai");
         allowedDomains.add("mistralcdn.net");
         allowedDomains.add("blob.core.windows.net"); // Mistral audio/file uploads (Azure Blob Storage)
+        allowedDomains.add("challenges.cloudflare.com"); // Cloudflare Turnstile bot-check during Auth0 login
 
     }
 

@@ -20,7 +20,7 @@ Single-activity Android app — no fragments, no ViewModel, no dependency inject
 
 ### URL Allowlisting (restricted mode, default ON)
 `shouldInterceptRequest` and `shouldOverrideUrlLoading` both enforce the same allowlist:
-- `cdn.auth0.com`, `chat.mistral.ai`, `mistral.ai`, `api.mistral.ai`, `console.mistral.ai`, `mistralcdn.net`, `blob.core.windows.net` (Azure Blob — Mistral audio/file uploads)
+- `cdn.auth0.com`, `chat.mistral.ai`, `mistral.ai`, `api.mistral.ai`, `console.mistral.ai`, `mistralcdn.net`, `blob.core.windows.net` (Azure Blob — Mistral audio/file uploads), `challenges.cloudflare.com` (Cloudflare Turnstile bot-check during Auth0 login)
 - Gravatar avatars are intercepted and replaced with a local `assets/avatar.png`
 - Microsoft/Google/Apple OAuth domains trigger a toast + `resetChat()`
 
