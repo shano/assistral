@@ -20,7 +20,7 @@ Single-activity Android app — no fragments, no ViewModel, no dependency inject
 
 ### URL Allowlisting (restricted mode, default ON)
 `shouldInterceptRequest` and `shouldOverrideUrlLoading` both enforce the same allowlist:
-- `cdn.auth0.com`, `chat.mistral.ai`, `mistral.ai`, `api.mistral.ai`, `console.mistral.ai`, `mistralcdn.net`, `blob.core.windows.net` (Azure Blob — Mistral audio/file uploads)
+- `cdn.auth0.com`, `chat.mistral.ai`, `mistral.ai`, `api.mistral.ai`, `console.mistral.ai`, `mistralcdn.net`, `blob.core.windows.net` (Azure Blob — Mistral audio/file uploads), `challenges.cloudflare.com` (Cloudflare Turnstile bot-check during Auth0 login)
 - Gravatar avatars are intercepted and replaced with a local `assets/avatar.png`
 - Microsoft/Google/Apple OAuth domains trigger a toast + `resetChat()`
 
@@ -76,6 +76,17 @@ git push
 # 3. Tag and push to trigger the release workflow
 git tag vX.Y.Z && git push origin vX.Y.Z
 ```
+
+## F-Droid Metadata
+
+The fdroiddata YAML (`metadata/org.shano.assistral.yml`) has strict formatting enforced by `rewritemeta`. The `Binaries:` field must use a trailing space after the colon, with the URL indented on the next line:
+
+```yaml
+Binaries:
+  https://github.com/shano/assistral/releases/download/v%v/assistral-release-%v.apk
+```
+
+Inline (`Binaries: https://...`) and no-trailing-space (`Binaries:`) both fail the CI lint.
 
 ## Distribution
 
