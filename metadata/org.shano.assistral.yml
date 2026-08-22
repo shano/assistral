@@ -62,8 +62,14 @@ Builds:
     subdir: app
     gradle:
       - yes
+  - versionName: '3.2.6'
+    versionCode: 326
+    commit: v3.2.6
+    subdir: app
+    gradle:
+      - yes
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '3.2.5'
-CurrentVersionCode: 325
+CurrentVersion: '3.2.6'
+CurrentVersionCode: 326
