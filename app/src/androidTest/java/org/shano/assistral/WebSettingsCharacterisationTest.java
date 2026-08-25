@@ -17,6 +17,7 @@ import android.os.Build;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -42,10 +43,10 @@ public class WebSettingsCharacterisationTest {
     private WebSettings settings;
 
     @Before
+    @UiThreadTest
     public void setUp() {
-        // WebView must be constructed on the main/UI thread; the test runner
-        // does this automatically for @UiThreadTest, but constructing it via
-        // ApplicationProvider context works for settings-only inspection.
+        // WebView must be constructed on the UI thread (it requires a Looper);
+        // @UiThreadTest runs this method on the main thread.
         WebView webView = new WebView(ApplicationProvider.getApplicationContext());
         settings = webView.getSettings();
 
