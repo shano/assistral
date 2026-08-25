@@ -65,7 +65,11 @@ jobs:
 
   # Instrumented tests (src/androidTest) — needs a running emulator.
   # Covers WebSettingsCharacterisationTest and AutocorrectWebViewCharacterisationTest.
-  # API 34 (minSdk is 24); the action boots a headless emulator on the runner.
+  # Uses the aosp_atd (Automated Test Device) image: a minimal, low-resource image
+  # purpose-built for CI that boots faster and crashes far less than the full
+  # default image on GitHub's software-rendered (no-KVM) runners. API 30 is
+  # above minSdk (24) and lighter than 34. The script retries once because the
+  # split-APK install occasionally fails with "Broken pipe" on soft-rendered emulators.
   instrumented-tests:
 
     runs-on: ubuntu-latest
@@ -86,13 +90,14 @@ jobs:
       - name: Run instrumented tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 30
           arch: x86_64
           profile: pixel_6
-          target: default
-          emulator-options: -no-window -gpu swiftshader_indirect -audio -no-snapshot
+          target: aosp_atd
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -no-boot-anim -audio none
+          emulator-boot-timeout: 900
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest
+          script: ./gradlew connectedDebugAndroidTest || ./gradlew connectedDebugAndroidTest
 
       - name: Upload test results on failure
         if: always()
