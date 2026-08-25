@@ -16,6 +16,17 @@ public class AutocorrectWebView extends WebView {
     // Track whether the active field is a password so dispatchKeyEvent can skip it.
     private boolean activeFieldIsPassword = false;
 
+    // Package-private so characterisation tests can pin the exact flag set that
+    // prevents the IME from treating Enter as a submit action (see issue #7).
+    static void applyNonPasswordInputFlags(EditorInfo outAttrs) {
+        outAttrs.inputType = InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
+                | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+    }
+
     public AutocorrectWebView(Context context) {
         super(context);
     }
@@ -39,12 +50,7 @@ public class AutocorrectWebView extends WebView {
                 || variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 || variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
         if (!activeFieldIsPassword) {
-            outAttrs.inputType = InputType.TYPE_CLASS_TEXT
-                    | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-                    | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-                    | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-                    | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+            applyNonPasswordInputFlags(outAttrs);
         }
         if (activeFieldIsPassword) return ic;
 

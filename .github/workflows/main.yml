@@ -62,3 +62,44 @@ jobs:
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
           path: ${{ env.main_project_module }}/build/outputs/apk/debug/
+
+  # Instrumented tests (src/androidTest) — needs a running emulator.
+  # Covers WebSettingsCharacterisationTest and AutocorrectWebViewCharacterisationTest.
+  # API 34 (minSdk is 24); the action boots a headless emulator on the runner.
+  instrumented-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Run instrumented tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          target: default
+          emulator-options: -no-window -gpu swiftshader_indirect -audio -no-snapshot
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest
+
+      - name: Upload test results on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-test-results
+          path: |
+            ${{ env.main_project_module }}/build/outputs/androidTest-results/connected/
+            ${{ env.main_project_module }}/build/reports/androidTest/connected/
+          if-no-files-found: ignore
