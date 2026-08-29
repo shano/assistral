@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      androidx-test:
+        patterns:
+          - "androidx.test*"
+    ignore:
+      # Runtime dependency — the app is a WebView wrapper, so webkit changes
+      # get manual review + release-note reading, never auto-merge.
+      - dependency-name: "androidx.webkit:webkit"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
