@@ -426,8 +426,6 @@ public class MainActivity extends Activity {
         Log.d(TAG, "[onCreate] build loaded, dispatchKeyEvent override active");
         //Load Mistral Le Chat
         chatWebView.loadUrl(urlToLoad);
-        GooglePolicyNotice.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE);
-        if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/shano/assistral");
     }
 
     @Override
