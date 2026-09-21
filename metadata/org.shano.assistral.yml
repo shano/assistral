@@ -74,8 +74,14 @@ Builds:
     subdir: app
     gradle:
       - yes
+  - versionName: '3.2.8'
+    versionCode: 328
+    commit: v3.2.8
+    subdir: app
+    gradle:
+      - yes
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '3.2.7'
-CurrentVersionCode: 327
+CurrentVersion: '3.2.8'
+CurrentVersionCode: 328
