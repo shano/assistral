@@ -277,30 +277,28 @@ public class MainActivity extends Activity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                // Register Enter interceptors before Mistral's React scripts run.
+                // Register Enter interceptors before Mistral's scripts run.
+                // Since the "Vibe" UI update, Le Chat's editor (ProseMirror) has no
+                // hard-break support and no React onKeyDown props: the browser's
+                // native insertParagraph/insertLineBreak produce no usable newline.
+                // Intercept both beforeinput types (software keyboards send
+                // insertParagraph; hardware Enter arrives as Shift+Enter via
+                // dispatchKeyEvent and sends insertLineBreak) and re-dispatch the
+                // editor's own Shift-Enter keydown, which splits the paragraph.
                 view.evaluateJavascript(
                     "(function(){" +
                     "if(window.__assistralInjected)return;" +
                     "window.__assistralInjected=true;" +
                     "window.addEventListener('beforeinput',function(e){" +
-                    "  if(e.inputType!=='insertParagraph')return;" +
-                    "  var ce=e.target&&(e.target.isContentEditable?e.target:(e.target.closest&&e.target.closest('[contenteditable]')));" +
+                    "  if(e.inputType!=='insertParagraph'&&e.inputType!=='insertLineBreak')return;" +
+                    "  var t=e.target;if(!t)return;" +
+                    "  var ce=t.isContentEditable?t:(t.closest&&t.closest('[contenteditable]'));" +
                     "  if(!ce)return;" +
+                    "  var pm=(ce.classList&&ce.classList.contains('ProseMirror'))?ce:(ce.closest&&ce.closest('.ProseMirror'));" +
+                    "  if(!pm)return;" +
                     "  e.stopImmediatePropagation();" +
                     "  e.preventDefault();" +
-                    "  var el=ce,found=null;" +
-                    "  while(el){" +
-                    "    var rk=Object.keys(el).find(function(k){return k.startsWith('__reactProps');});" +
-                    "    if(rk){var p=el[rk];if(p.onKeyDown){found={el:el,props:p};break;}}" +
-                    "    el=el.parentElement;" +
-                    "  }" +
-                    "  if(found){" +
-                    "    console.log('[assistral] found onKeyDown on '+found.el.tagName+' propsKeys='+JSON.stringify(Object.keys(found.props)));" +
-                    "    found.props.onKeyDown({key:'Enter',shiftKey:true,ctrlKey:false,metaKey:false,altKey:false,preventDefault:function(){},stopPropagation:function(){},nativeEvent:{key:'Enter',shiftKey:true,isTrusted:true}});" +
-                    "    setTimeout(function(){console.log('[assistral] 100ms innerHTML='+JSON.stringify(ce.innerHTML.slice(0,300)));},100);" +
-                    "  } else {" +
-                    "    console.log('[assistral] no onKeyDown found in ancestors');" +
-                    "  }" +
+                    "  pm.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',shiftKey:true,bubbles:true,cancelable:true}));" +
                     "},true);" +
                     "})();",
                     null
