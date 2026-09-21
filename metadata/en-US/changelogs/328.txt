@@ -1,0 +1,1 @@
+Fixed Enter no longer inserting a newline in chats (Mistral's "Vibe" UI update broke it on both software and hardware keyboards). Fixed the voice input bar pushing the send button off-screen in languages with long labels (e.g. German).
