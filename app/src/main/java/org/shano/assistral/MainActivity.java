@@ -331,6 +331,22 @@ public class MainActivity extends Activity {
                     "})();",
                     null
                 );
+
+                // Keep the voice-mode recording bar inside the visible viewport in
+                // long-locale builds of Le Chat (e.g. German). The Autosend element
+                // (button > span[role="status"]) is sized by its localized label; a wide
+                // label pushes the transcribe/send button past the right edge of the
+                // narrow WebView, where it can't be seen or tapped.
+                view.evaluateJavascript(
+                    "(function(){" +
+                    "if(document.getElementById('assistral-voicebar-fix'))return;" +
+                    "var s=document.createElement('style');" +
+                    "s.id='assistral-voicebar-fix';" +
+                    "s.textContent='button:has(> span[role=status]){min-width:0;overflow:hidden;justify-content:flex-end;max-width:min(32vw,160px)}';" +
+                    "document.head.appendChild(s);" +
+                    "})();",
+                    null
+                );
             }
 
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
